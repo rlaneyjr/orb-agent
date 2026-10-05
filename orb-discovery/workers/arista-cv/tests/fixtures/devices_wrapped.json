@@ -1,0 +1,30 @@
+{
+  "data": [
+    {
+      "result": {
+        "value": {
+          "key": {"deviceId": "JPE15214224"},
+          "softwareVersion": "4.28.1F",
+          "modelName": "DCS-7280SR-48C6",
+          "hostname": "leaf-01",
+          "fqdn": "leaf-01.lab.local",
+          "systemMacAddress": "00:1c:73:00:00:01",
+          "streamingStatus": "STREAMING_STATUS_ACTIVE"
+        }
+      }
+    },
+    {
+      "result": {
+        "value": {
+          "key": {"deviceId": "JPE19050707"},
+          "softwareVersion": "4.28.1F",
+          "modelName": "DCS-7280SR-48C6",
+          "hostname": "leaf-02",
+          "fqdn": "leaf-02.lab.local",
+          "systemMacAddress": "00:1c:73:00:00:02",
+          "streamingStatus": "STREAMING_STATUS_ACTIVE"
+        }
+      }
+    }
+  ]
+}

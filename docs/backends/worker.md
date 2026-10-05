@@ -70,4 +70,42 @@ Example `workers.txt`:
 my-custom-wkr==0.1.2 # try install from pypi
 nbl-custom-worker-1.0.2.tar.gz # try install from a tar.gz
 ./my-worker # try to install from a folder that contains project.toml
+./arista-cv # Arista CloudVision (CVaaS/CVP) inventory worker
 ```
+
+### Arista CloudVision (CVaaS / CVP)
+
+The first-party [`arista-cv`](../../orb-discovery/workers/arista-cv/README.md)
+worker package discovers devices from CloudVision inventory and ingests them via
+Diode. Install it with `INSTALL_WORKERS_PATH` as above (add `./arista-cv` to
+`workers.txt`), then apply a policy:
+
+```yaml
+orb:
+  backends:
+    common:
+      diode:
+        target: grpc://192.168.0.100:8080/diode
+        client_id: ${DIODE_CLIENT_ID}
+        client_secret: ${DIODE_CLIENT_SECRET}
+        agent_name: agent01
+    worker:
+  policies:
+    worker:
+      arista_cv_inventory:
+        config:
+          package: arista_cv
+          schedule: "0 */6 * * *"
+          defaults:
+            site: dc1
+            role: network
+            manufacturer: Arista
+            platform: eos
+            tags: ["cloudvision"]
+        scope:
+          host: https://www.arista.io   # or https://cvp.example.com
+          token: ${CV_TOKEN}
+```
+
+See the [package README](../../orb-discovery/workers/arista-cv/README.md) for the
+full policy schema and service-account token setup.
