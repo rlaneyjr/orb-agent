@@ -1,0 +1,35 @@
+# CVaaS dry-run agent config for the arista-cv worker.
+#
+# Requires CV_TOKEN in the environment (CVaaS service-account token from
+# Settings → Access Control → Service Accounts). No Diode credentials needed.
+#
+# On-prem CVP: change scope.host to your CVP URL and set verify_ssl: false
+# when using a lab self-signed certificate.
+orb:
+  config_manager:
+    active: local
+  backends:
+    worker:
+    common:
+      diode:
+        dry_run: true
+        dry_run_output_dir: ../arista-cv-dry-run
+        agent_name: arista-cv-cvaas-dry-run
+  policies:
+    worker:
+      arista_cv_inventory:
+        config:
+          package: arista_cv
+          # Omit schedule for a one-time run (DateTrigger ~1s after apply).
+          active_only: true
+          timeout: 60
+          defaults:
+            site: cvaas
+            role: network
+            manufacturer: Arista
+            platform: eos
+            tags: ["cloudvision", "cvaas-dry-run"]
+        scope:
+          host: https://www.arista.io
+          token: ${CV_TOKEN}
+          verify_ssl: true

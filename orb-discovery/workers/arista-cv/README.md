@@ -109,14 +109,31 @@ pip install -e ".[test]"
 pytest
 ```
 
-Dry-run with a live CloudVision instance:
+### Live CVaaS dry-run (recommended)
+
+Verify against **CVaaS** (`https://www.arista.io`) without ingesting to Diode.
+Uses the example agent config under [`examples/`](./examples/) (`dry_run: true`).
+
+```bash
+export CV_TOKEN=...   # CVaaS service-account token
+./examples/dry-run-cvaas.sh
+# inspect /tmp/arista-cv-dry-run
+```
+
+The script prefers a local `build/orb-agent` (with `orb-worker` on `PATH`),
+otherwise runs `netboxlabs/orb-agent:latest` via Docker. Tokens are never
+written to logs or echoed by the script.
+
+For on-prem CVP, copy [`examples/agent-cvaas-dry-run.yaml`](./examples/agent-cvaas-dry-run.yaml),
+set `scope.host` to your CVP URL, and set `verify_ssl: false` for lab
+self-signed certs.
+
+### Alternate: orb-worker API dry-run
 
 ```bash
 export CV_TOKEN=...
-orb-worker -t 'grpc://diode:8080/diode' \
-  -c '${DIODE_CLIENT_ID}' -k '${DIODE_CLIENT_SECRET}' \
-  --dry-run -o /tmp/arista-cv-dry-run
+orb-worker --dry-run -o /tmp/arista-cv-dry-run
 ```
 
-Then apply a worker policy that sets `package: arista_cv` and your CVaaS/CVP
-`host` / `token`. Tokens are never written to logs.
+Then `POST` a worker policy that sets `package: arista_cv` and your CVaaS/CVP
+`host` / `token` to `http://localhost:8071/api/v1/policies`.

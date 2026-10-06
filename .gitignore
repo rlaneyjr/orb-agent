@@ -31,4 +31,5 @@ CLAUDE.md
 go.work
 go.work.sum
 
+.envrc
 local_*.md
