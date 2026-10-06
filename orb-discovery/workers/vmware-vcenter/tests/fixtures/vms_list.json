@@ -1,0 +1,23 @@
+[
+  {
+    "vm": "vm-101",
+    "name": "web-01",
+    "power_state": "POWERED_ON",
+    "cpu_count": 4,
+    "memory_size_MiB": 8192
+  },
+  {
+    "vm": "vm-102",
+    "name": "db-01",
+    "power_state": "POWERED_ON",
+    "cpu_count": 8,
+    "memory_size_MiB": 16384
+  },
+  {
+    "vm": "vm-199",
+    "name": "retired-app",
+    "power_state": "POWERED_OFF",
+    "cpu_count": 2,
+    "memory_size_MiB": 4096
+  }
+]

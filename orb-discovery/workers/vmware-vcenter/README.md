@@ -1,14 +1,8 @@
 # VMware vCenter worker
 
-Orb Agent worker package that discovers **ESXi hosts** from **VMware vCenter**
-via the vSphere Automation REST API (`GET /api/vcenter/host`), then ingests them
-as Diode `Device` entities.
-
-## Future work
-
-Guest VMs and vSphere clusters are deferred beyond this MVP. A follow-up should
-emit Diode `Cluster` / `ClusterType` and `VirtualMachine` entities (and link
-VM→host/cluster) for both this worker and the Nutanix Prism Central worker.
+Orb Agent worker package that discovers **clusters**, **ESXi hosts**, and
+**virtual machines** from **VMware vCenter** via the vSphere Automation REST API,
+then ingests them as Diode `Cluster`, `Device`, and `VirtualMachine` entities.
 
 ## Install into Orb Agent
 
@@ -57,13 +51,16 @@ orb:
         config:
           package: vmware_vcenter
           schedule: "0 */6 * * *"
-          active_only: true          # default; only CONNECTED hosts
+          active_only: true          # default; CONNECTED hosts / POWERED_ON VMs
           timeout: 60                # HTTP timeout seconds
           defaults:
             site: dc1                # required
             role: hypervisor         # default: hypervisor
             manufacturer: VMware     # default: VMware
             platform: esxi           # default: esxi
+            cluster_type: VMware vSphere  # default
+            vm_role: vm              # default: vm
+            vm_platform: unknown     # default: unknown
             tags: ["vmware-vcenter"]
         scope:
           host: https://vcenter.example.com
@@ -78,12 +75,15 @@ orb:
 |-------|----------|-------------|
 | `package` | yes | Must be `vmware_vcenter` |
 | `schedule` | no | Cron expression; omit to run once |
-| `defaults.site` | yes | NetBox site for discovered devices |
-| `defaults.role` | no | Device role (default `hypervisor`) |
+| `defaults.site` | yes | NetBox site for discovered objects |
+| `defaults.role` | no | Device role for ESXi hosts (default `hypervisor`) |
 | `defaults.manufacturer` | no | Manufacturer (default `VMware`) |
-| `defaults.platform` | no | Platform (default `esxi`) |
-| `defaults.tags` | no | Tags applied to each device |
-| `active_only` | no | Only CONNECTED hosts (default `true`) |
+| `defaults.platform` | no | Platform for ESXi hosts (default `esxi`) |
+| `defaults.cluster_type` | no | Cluster type (default `VMware vSphere`) |
+| `defaults.vm_role` | no | Role for VMs (default `vm`) |
+| `defaults.vm_platform` | no | Platform for VMs (default `unknown`) |
+| `defaults.tags` | no | Tags applied to each object |
+| `active_only` | no | Only CONNECTED hosts and POWERED_ON VMs (default `true`) |
 | `timeout` | no | HTTP timeout in seconds (default `60`) |
 
 ### Scope
@@ -96,10 +96,27 @@ orb:
 | `verify_ssl` | no | TLS verification (default `true`) |
 
 Uses session authentication: `POST /api/session` (HTTP Basic) then
-`vmware-api-session-id` on `GET /api/vcenter/host`. Passwords and session ids
-are never written to logs.
+`vmware-api-session-id` on inventory GETs. Passwords and session ids are never
+written to logs.
 
-## What is discovered (MVP)
+Inventory endpoints:
+
+- `GET /api/vcenter/cluster`
+- `GET /api/vcenter/host` (with optional `?clusters=` for membership)
+- `GET /api/vcenter/vm` (with optional `?clusters=` / `?hosts=` for linkage)
+
+## What is discovered
+
+### Clusters
+
+| vCenter field | Diode / NetBox |
+|---------------|----------------|
+| `name` | Cluster name |
+| policy `defaults.cluster_type` | Cluster type |
+| policy `defaults.site` | Cluster scope site |
+| `ha_enabled` / `drs_enabled` | Included in description |
+
+### ESXi hosts
 
 | vCenter field | Diode / NetBox |
 |---------------|----------------|
@@ -107,7 +124,20 @@ are never written to logs.
 | `host` (MOID) | Device serial (Host.Summary has no hardware serial) |
 | `connection_state` | `active` (CONNECTED) or `offline` |
 | `power_state` | Included in description |
+| cluster membership | Device → Cluster |
 | policy `defaults.*` | site, role, manufacturer, platform, tags |
+
+### Virtual machines
+
+| vCenter field | Diode / NetBox |
+|---------------|----------------|
+| `name` | VirtualMachine name |
+| `power_state` | `active` (POWERED_ON) or `offline` |
+| `cpu_count` | vCPUs |
+| `memory_size_MiB` | Memory (MiB) |
+| cluster filter | VirtualMachine → Cluster |
+| host filter | VirtualMachine → Device (ESXi host) |
+| policy `defaults.vm_role` / `vm_platform` | role, platform |
 
 ## Telemetry
 

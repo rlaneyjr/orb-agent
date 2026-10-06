@@ -1,0 +1,30 @@
+{
+  "entities": [
+    {
+      "metadata": {
+        "kind": "cluster",
+        "uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+      },
+      "status": {
+        "name": "prod-cluster-a",
+        "state": "COMPLETE"
+      },
+      "spec": {
+        "name": "prod-cluster-a"
+      }
+    },
+    {
+      "metadata": {
+        "kind": "cluster",
+        "uuid": "bbbbbbbb-cccc-dddd-eeee-ffffffffffff"
+      },
+      "status": {
+        "name": "legacy-cluster",
+        "state": "COMPLETE"
+      },
+      "spec": {
+        "name": "legacy-cluster"
+      }
+    }
+  ]
+}

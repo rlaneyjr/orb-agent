@@ -72,10 +72,10 @@ nbl-custom-worker-1.0.2.tar.gz # try install from a tar.gz
 ./my-worker # try to install from a folder that contains project.toml
 ./arista-cv # Arista CloudVision (CVaaS/CVP) inventory worker
 ./a10-control # A10 Control inventory worker
-./nutanix-pc # Nutanix Prism Central host inventory worker
+./nutanix-pc # Nutanix Prism Central cluster/host/VM inventory worker
 ./cisco-intersight # Cisco Intersight compute inventory worker
 ./paloalto-panorama # Palo Alto Panorama managed-device inventory worker
-./vmware-vcenter # VMware vCenter ESXi host inventory worker
+./vmware-vcenter # VMware vCenter cluster/ESXi/VM inventory worker
 ```
 
 ### Telemetry for worker packages
@@ -169,9 +169,9 @@ full policy schema and organization API-key setup.
 ### Nutanix Prism Central
 
 The first-party [`nutanix-pc`](../../orb-discovery/workers/nutanix-pc/README.md)
-worker package discovers physical hosts from Prism Central (v3 hosts list) and
-ingests them via Diode. Install it with `INSTALL_WORKERS_PATH` as above (add
-`./nutanix-pc` to `workers.txt`), then apply a policy:
+worker package discovers clusters, physical hosts, and VMs from Prism Central
+(v3 list APIs) and ingests them via Diode. Install it with `INSTALL_WORKERS_PATH`
+as above (add `./nutanix-pc` to `workers.txt`), then apply a policy:
 
 ```yaml
 orb:
@@ -282,9 +282,10 @@ for the full policy schema and XML API-key setup.
 ### VMware vCenter
 
 The first-party [`vmware-vcenter`](../../orb-discovery/workers/vmware-vcenter/README.md)
-worker package discovers ESXi hosts from vCenter (REST `GET /api/vcenter/host`)
-and ingests them via Diode. Install it with `INSTALL_WORKERS_PATH` as above (add
-`./vmware-vcenter` to `workers.txt`), then apply a policy:
+worker package discovers clusters, ESXi hosts, and VMs from vCenter (REST
+`/api/vcenter/cluster`, `/host`, `/vm`) and ingests them via Diode. Install it
+with `INSTALL_WORKERS_PATH` as above (add `./vmware-vcenter` to `workers.txt`),
+then apply a policy:
 
 ```yaml
 orb:

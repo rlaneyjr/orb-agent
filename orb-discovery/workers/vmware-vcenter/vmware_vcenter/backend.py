@@ -14,7 +14,7 @@ from worker.backend import Backend
 from worker.models import Metadata, Policy
 
 from vmware_vcenter.client import InventoryClient, VCenterClient
-from vmware_vcenter.map import map_devices
+from vmware_vcenter.map import map_inventory
 from vmware_vcenter.models import PolicyConfig, Scope
 
 logger = logging.getLogger(__name__)
@@ -24,7 +24,7 @@ APP_VERSION = "0.1.0"
 
 
 class VMwareVCenterBackend(Backend):
-    """Discover ESXi hosts from VMware vCenter (REST host inventory)."""
+    """Discover clusters, ESXi hosts, and VMs from VMware vCenter."""
 
     def __init__(
         self,
@@ -54,11 +54,11 @@ class VMwareVCenterBackend(Backend):
             name="vmware_vcenter",
             app_name=APP_NAME,
             app_version=APP_VERSION,
-            description="VMware vCenter ESXi host inventory discovery",
+            description="VMware vCenter cluster, ESXi host, and VM inventory discovery",
         )
 
     def run(self, policy_name: str, policy: Policy, **kwargs: Any) -> Iterable[Entity]:
-        """Fetch vCenter host inventory and map it to Diode entities."""
+        """Fetch vCenter inventory and map it to Diode entities."""
         try:
             config = PolicyConfig(**policy.config.model_dump())
             if not isinstance(policy.scope, dict):
@@ -78,17 +78,23 @@ class VMwareVCenterBackend(Backend):
 
         client = self._client_factory(scope, config)
         try:
+            clusters = client.list_clusters()
             devices = client.list_devices(active_only=config.active_only)
+            vms = client.list_vms(active_only=config.active_only)
         finally:
             close = getattr(client, "close", None)
             if callable(close):
                 close()
 
-        entities = map_devices(devices, config.defaults)
+        entities = map_inventory(clusters, devices, vms, config.defaults)
         logger.info(
-            "Policy '%s' produced %d device entit(y/ies) from vCenter",
+            "Policy '%s' produced %d entit(y/ies) from vCenter "
+            "(%d cluster(s), %d host(s), %d VM(s))",
             policy_name,
             len(entities),
+            len(clusters),
+            len(devices),
+            len(vms),
         )
         return entities
 

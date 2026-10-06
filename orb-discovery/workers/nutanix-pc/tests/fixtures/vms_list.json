@@ -1,0 +1,115 @@
+{
+  "entities": [
+    {
+      "metadata": {
+        "kind": "vm",
+        "uuid": "vm-aaaa-1111-2222-3333-444444444444"
+      },
+      "status": {
+        "name": "web-01",
+        "state": "COMPLETE",
+        "resources": {
+          "power_state": "ON",
+          "num_sockets": 2,
+          "num_vcpus_per_socket": 2,
+          "memory_size_mib": 8192,
+          "disk_list": [
+            {"disk_size_mib": 51200},
+            {"disk_size_mib": 102400}
+          ],
+          "host_reference": {
+            "kind": "host",
+            "name": "NTNX-HOST-01",
+            "uuid": "11111111-2222-3333-4444-555555555555"
+          },
+          "cluster_reference": {
+            "kind": "cluster",
+            "name": "prod-cluster-a",
+            "uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+          },
+          "nic_list": [
+            {
+              "ip_endpoint_list": [
+                {"ip": "10.20.2.10"}
+              ]
+            }
+          ]
+        }
+      },
+      "spec": {
+        "name": "web-01"
+      }
+    },
+    {
+      "metadata": {
+        "kind": "vm",
+        "uuid": "vm-bbbb-2222-3333-4444-555555555555"
+      },
+      "status": {
+        "name": "db-01",
+        "state": "COMPLETE",
+        "resources": {
+          "power_state": "ON",
+          "num_sockets": 4,
+          "num_vcpus_per_socket": 2,
+          "memory_size_mib": 16384,
+          "disk_list": [
+            {"disk_size_mib": 204800}
+          ],
+          "host_reference": {
+            "kind": "host",
+            "name": "NTNX-HOST-02",
+            "uuid": "22222222-3333-4444-5555-666666666666"
+          },
+          "cluster_reference": {
+            "kind": "cluster",
+            "name": "prod-cluster-a",
+            "uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+          },
+          "nic_list": [
+            {
+              "ip_endpoint_list": [
+                {"ip": "10.20.2.11"}
+              ]
+            }
+          ]
+        }
+      },
+      "spec": {
+        "name": "db-01"
+      }
+    },
+    {
+      "metadata": {
+        "kind": "vm",
+        "uuid": "vm-cccc-3333-4444-5555-666666666666"
+      },
+      "status": {
+        "name": "retired-app",
+        "state": "COMPLETE",
+        "resources": {
+          "power_state": "OFF",
+          "num_sockets": 1,
+          "num_vcpus_per_socket": 2,
+          "memory_size_mib": 4096,
+          "disk_list": [
+            {"disk_size_mib": 20480}
+          ],
+          "host_reference": {
+            "kind": "host",
+            "name": "NTNX-HOST-LEGACY",
+            "uuid": "33333333-4444-5555-6666-777777777777"
+          },
+          "cluster_reference": {
+            "kind": "cluster",
+            "name": "legacy-cluster",
+            "uuid": "bbbbbbbb-cccc-dddd-eeee-ffffffffffff"
+          }
+        }
+      },
+      "spec": {
+        "name": "retired-app"
+      }
+    }
+  ]
+}

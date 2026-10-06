@@ -1,7 +1,7 @@
 [project]
 name = "netboxlabs-vmware-vcenter-worker"
 version = "0.1.0"
-description = "Orb Agent worker package for VMware vCenter ESXi host inventory discovery"
+description = "Orb Agent worker package for VMware vCenter cluster, ESXi host, and VM inventory discovery"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }
@@ -61,3 +61,4 @@ ignore = ["F401", "D203", "D212", "D400", "D401", "D403", "D404", "RET504"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["tests"]

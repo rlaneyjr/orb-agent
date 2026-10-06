@@ -10,11 +10,20 @@ class Defaults(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    site: str = Field(..., description="NetBox site name for discovered devices")
-    role: str = Field(default="hypervisor", description="NetBox device role")
+    site: str = Field(..., description="NetBox site name for discovered objects")
+    role: str = Field(default="hypervisor", description="NetBox device role for AHV hosts")
     manufacturer: str = Field(default="Nutanix", description="NetBox manufacturer")
-    platform: str = Field(default="ahv", description="NetBox platform name")
-    tags: list[str] = Field(default_factory=list, description="Tags applied to each device")
+    platform: str = Field(default="ahv", description="NetBox platform name for AHV hosts")
+    cluster_type: str = Field(
+        default="Nutanix AHV",
+        description="NetBox cluster type for discovered clusters",
+    )
+    vm_role: str = Field(default="vm", description="NetBox device role for virtual machines")
+    vm_platform: str = Field(
+        default="unknown",
+        description="NetBox platform name for virtual machines when guest OS is unknown",
+    )
+    tags: list[str] = Field(default_factory=list, description="Tags applied to each object")
 
 
 class PolicyConfig(BaseModel):
@@ -28,7 +37,7 @@ class PolicyConfig(BaseModel):
     timeout: float = Field(default=60.0, ge=1.0, description="HTTP timeout in seconds")
     active_only: bool = Field(
         default=True,
-        description="When true, only ingest hosts that appear complete/online",
+        description="When true, only ingest complete/online hosts and powered-on VMs",
     )
 
     @field_validator("package")
@@ -75,6 +84,16 @@ class Scope(BaseModel):
         return username
 
 
+class ClusterInfo(BaseModel):
+    """Normalized Prism Central cluster inventory record."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    cluster_id: str
+    name: str
+    status: str | None = None
+
+
 class PCHost(BaseModel):
     """Normalized Prism Central host inventory record."""
 
@@ -89,3 +108,20 @@ class PCHost(BaseModel):
     status: str | None = None
     cluster_name: str | None = None
     hypervisor: str | None = None
+
+
+class GuestVM(BaseModel):
+    """Normalized Prism Central virtual machine inventory record."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    vm_id: str
+    name: str
+    power_state: str | None = None
+    status: str | None = None
+    cpu_count: int | None = None
+    memory_mib: int | None = None
+    disk_gb: int | None = None
+    cluster_name: str | None = None
+    host_name: str | None = None
+    primary_ip: str | None = None

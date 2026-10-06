@@ -1,7 +1,7 @@
 [project]
 name = "netboxlabs-nutanix-pc-worker"
 version = "0.1.0"
-description = "Orb Agent worker package for Nutanix Prism Central host inventory discovery"
+description = "Orb Agent worker package for Nutanix Prism Central cluster, host, and VM inventory discovery"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }

@@ -9,7 +9,7 @@ from worker.backend import load_class
 from worker.models import Config, Policy
 
 from vmware_vcenter.backend import APP_NAME, APP_VERSION, VMwareVCenterBackend
-from vmware_vcenter.models import ESXiHost
+from vmware_vcenter.models import ClusterInfo, ESXiHost, GuestVM
 
 
 def _policy(**overrides) -> Policy:
@@ -47,27 +47,47 @@ def test_load_class_discovers_backend():
     assert load_class("vmware_vcenter") is VMwareVCenterBackend
 
 
-def test_run_maps_devices_from_client():
-    """run() uses the injected client and maps hosts to entities."""
+def test_run_maps_inventory_from_client():
+    """run() uses the injected client and maps clusters/hosts/VMs to entities."""
     mock_client = MagicMock()
+    mock_client.list_clusters.return_value = [
+        ClusterInfo(cluster_id="domain-c21", name="prod-cluster-a", ha_enabled=True, drs_enabled=True)
+    ]
     mock_client.list_devices.return_value = [
         ESXiHost(
             device_id="host-11",
             hostname="esxi-01.lab.example.com",
             status="CONNECTED",
             power_state="POWERED_ON",
+            cluster_name="prod-cluster-a",
+        )
+    ]
+    mock_client.list_vms.return_value = [
+        GuestVM(
+            vm_id="vm-101",
+            name="web-01",
+            power_state="POWERED_ON",
+            cpu_count=4,
+            memory_mib=8192,
+            cluster_name="prod-cluster-a",
+            host_name="esxi-01.lab.example.com",
         )
     ]
 
     backend = VMwareVCenterBackend(client_factory=lambda scope, config: mock_client)
     entities = list(backend.run("vmware_vcenter_inventory", _policy()))
 
+    mock_client.list_clusters.assert_called_once_with()
     mock_client.list_devices.assert_called_once_with(active_only=True)
+    mock_client.list_vms.assert_called_once_with(active_only=True)
     mock_client.close.assert_called_once()
-    assert len(entities) == 1
-    assert entities[0].device.name == "esxi-01.lab.example.com"
-    assert entities[0].device.serial == "host-11"
-    assert entities[0].device.site.name == "dc1"
+    assert len(entities) == 3
+    assert entities[0].WhichOneof("entity") == "cluster"
+    assert entities[0].cluster.name == "prod-cluster-a"
+    assert entities[1].device.name == "esxi-01.lab.example.com"
+    assert entities[1].device.cluster.name == "prod-cluster-a"
+    assert entities[2].virtual_machine.name == "web-01"
+    assert entities[2].virtual_machine.device.name == "esxi-01.lab.example.com"
 
 
 def test_run_rejects_bad_package():

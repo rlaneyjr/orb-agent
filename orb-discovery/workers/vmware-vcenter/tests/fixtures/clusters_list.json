@@ -1,0 +1,14 @@
+[
+  {
+    "cluster": "domain-c21",
+    "name": "prod-cluster-a",
+    "ha_enabled": true,
+    "drs_enabled": true
+  },
+  {
+    "cluster": "domain-c22",
+    "name": "lab-cluster",
+    "ha_enabled": false,
+    "drs_enabled": false
+  }
+]

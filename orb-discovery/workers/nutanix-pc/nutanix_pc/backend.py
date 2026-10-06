@@ -14,7 +14,7 @@ from worker.backend import Backend
 from worker.models import Metadata, Policy
 
 from nutanix_pc.client import InventoryClient, PrismCentralClient
-from nutanix_pc.map import map_devices
+from nutanix_pc.map import map_inventory
 from nutanix_pc.models import PolicyConfig, Scope
 
 logger = logging.getLogger(__name__)
@@ -24,7 +24,7 @@ APP_VERSION = "0.1.0"
 
 
 class NutanixPCBackend(Backend):
-    """Discover hosts from Nutanix Prism Central (v3 hosts inventory)."""
+    """Discover clusters, hosts, and VMs from Nutanix Prism Central."""
 
     def __init__(
         self,
@@ -54,11 +54,11 @@ class NutanixPCBackend(Backend):
             name="nutanix_pc",
             app_name=APP_NAME,
             app_version=APP_VERSION,
-            description="Nutanix Prism Central host inventory discovery",
+            description="Nutanix Prism Central cluster, host, and VM inventory discovery",
         )
 
     def run(self, policy_name: str, policy: Policy, **kwargs: Any) -> Iterable[Entity]:
-        """Fetch Prism Central host inventory and map it to Diode entities."""
+        """Fetch Prism Central inventory and map it to Diode entities."""
         try:
             config = PolicyConfig(**policy.config.model_dump())
             if not isinstance(policy.scope, dict):
@@ -78,17 +78,23 @@ class NutanixPCBackend(Backend):
 
         client = self._client_factory(scope, config)
         try:
+            clusters = client.list_clusters()
             devices = client.list_devices(active_only=config.active_only)
+            vms = client.list_vms(active_only=config.active_only)
         finally:
             close = getattr(client, "close", None)
             if callable(close):
                 close()
 
-        entities = map_devices(devices, config.defaults)
+        entities = map_inventory(clusters, devices, vms, config.defaults)
         logger.info(
-            "Policy '%s' produced %d device entit(y/ies) from Prism Central",
+            "Policy '%s' produced %d entit(y/ies) from Prism Central "
+            "(%d cluster(s), %d host(s), %d VM(s))",
             policy_name,
             len(entities),
+            len(clusters),
+            len(devices),
+            len(vms),
         )
         return entities
 

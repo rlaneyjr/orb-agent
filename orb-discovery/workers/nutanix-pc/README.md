@@ -1,14 +1,8 @@
 # Nutanix Prism Central worker
 
-Orb Agent worker package that discovers **physical hosts** from **Nutanix Prism
-Central** via the v3 Hosts list API, then ingests them as Diode `Device`
-entities. Guest VMs are deferred beyond this MVP.
-
-## Future work
-
-Guest VMs and Nutanix clusters are deferred beyond this MVP. A follow-up should
-emit Diode `Cluster` / `ClusterType` and `VirtualMachine` entities (and link
-VM→host/cluster) for both this worker and the VMware vCenter worker.
+Orb Agent worker package that discovers **clusters**, **physical hosts**, and
+**virtual machines** from **Nutanix Prism Central** via the v3 list APIs, then
+ingests them as Diode `Cluster`, `Device`, and `VirtualMachine` entities.
 
 ## Install into Orb Agent
 
@@ -57,13 +51,16 @@ orb:
         config:
           package: nutanix_pc
           schedule: "0 */6 * * *"
-          active_only: true          # default; only COMPLETE/online hosts
+          active_only: true          # default; complete/online hosts and powered-on VMs
           timeout: 60                # HTTP timeout seconds
           defaults:
             site: dc1                # required
             role: hypervisor         # default: hypervisor
             manufacturer: Nutanix    # default: Nutanix
             platform: ahv            # default: ahv
+            cluster_type: Nutanix AHV  # default
+            vm_role: vm              # default: vm
+            vm_platform: unknown     # default: unknown
             tags: ["nutanix-pc"]
         scope:
           host: https://pc.example.com:9440
@@ -78,12 +75,15 @@ orb:
 |-------|----------|-------------|
 | `package` | yes | Must be `nutanix_pc` |
 | `schedule` | no | Cron expression; omit to run once |
-| `defaults.site` | yes | NetBox site for discovered devices |
-| `defaults.role` | no | Device role (default `hypervisor`) |
+| `defaults.site` | yes | NetBox site for discovered objects |
+| `defaults.role` | no | Device role for hosts (default `hypervisor`) |
 | `defaults.manufacturer` | no | Manufacturer (default `Nutanix`) |
-| `defaults.platform` | no | Platform (default `ahv`) |
-| `defaults.tags` | no | Tags applied to each device |
-| `active_only` | no | Only complete/online hosts (default `true`) |
+| `defaults.platform` | no | Platform for hosts (default `ahv`) |
+| `defaults.cluster_type` | no | Cluster type (default `Nutanix AHV`) |
+| `defaults.vm_role` | no | Role for VMs (default `vm`) |
+| `defaults.vm_platform` | no | Platform for VMs (default `unknown`) |
+| `defaults.tags` | no | Tags applied to each object |
+| `active_only` | no | Only complete/online hosts and powered-on VMs (default `true`) |
 | `timeout` | no | HTTP timeout in seconds (default `60`) |
 
 ### Scope
@@ -95,10 +95,30 @@ orb:
 | `password` | yes | Prism Central password (use `${PC_PASSWORD}` / vault) |
 | `verify_ssl` | no | TLS verification (default `true`) |
 
-Uses HTTP Basic authentication against
-`POST /api/nutanix/v3/hosts/list`. Passwords are never written to logs.
+Uses HTTP Basic authentication against the v3 list APIs. Passwords are never
+written to logs.
 
-## What is discovered (MVP)
+Inventory endpoints:
+
+- `POST /api/nutanix/v3/clusters/list` (`{"kind": "cluster"}`)
+- `POST /api/nutanix/v3/hosts/list` (`{"kind": "host"}`)
+- `POST /api/nutanix/v3/vms/list` (`{"kind": "vm"}`)
+
+## What is discovered
+
+### Clusters
+
+| Prism Central field | Diode / NetBox |
+|---------------------|----------------|
+| `status.name` / `spec.name` | Cluster name |
+| `status.state` | `active` or `offline` |
+| policy `defaults.cluster_type` | Cluster type |
+| policy `defaults.site` | Cluster scope site |
+
+Cluster names referenced by hosts or VMs but missing from `clusters/list` are
+still emitted so Device/VM references resolve.
+
+### Hosts
 
 | Prism Central field | Diode / NetBox |
 |---------------------|----------------|
@@ -108,8 +128,22 @@ Uses HTTP Basic authentication against
 | `resources.hypervisor_full_name` | Included in description |
 | `resources.hypervisor_ip` | Primary IPv4 when dotted-quad; also in description |
 | `status.state` | `active` or `offline` |
-| `resources.cluster_name` | Included in description |
+| `resources.cluster_name` | Device → Cluster |
 | policy `defaults.*` | site, role, manufacturer, platform, tags |
+
+### Virtual machines
+
+| Prism Central field | Diode / NetBox |
+|---------------------|----------------|
+| `status.name` / `spec.name` | VirtualMachine name |
+| `resources.power_state` | `active` (ON) or `offline` |
+| `num_sockets` × `num_vcpus_per_socket` | vCPUs |
+| `memory_size_mib` | Memory (MiB) |
+| `disk_list` sizes | Disk (GiB) |
+| `cluster_reference.name` | VirtualMachine → Cluster |
+| `host_reference.name` | VirtualMachine → Device (host) |
+| first NIC IPv4 | Primary IPv4 |
+| policy `defaults.vm_role` / `vm_platform` | role, platform |
 
 ## Telemetry
 

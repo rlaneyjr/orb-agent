@@ -10,11 +10,20 @@ class Defaults(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    site: str = Field(..., description="NetBox site name for discovered devices")
-    role: str = Field(default="hypervisor", description="NetBox device role")
+    site: str = Field(..., description="NetBox site name for discovered objects")
+    role: str = Field(default="hypervisor", description="NetBox device role for ESXi hosts")
     manufacturer: str = Field(default="VMware", description="NetBox manufacturer")
-    platform: str = Field(default="esxi", description="NetBox platform name")
-    tags: list[str] = Field(default_factory=list, description="Tags applied to each device")
+    platform: str = Field(default="esxi", description="NetBox platform name for ESXi hosts")
+    cluster_type: str = Field(
+        default="VMware vSphere",
+        description="NetBox cluster type for discovered clusters",
+    )
+    vm_role: str = Field(default="vm", description="NetBox device role for virtual machines")
+    vm_platform: str = Field(
+        default="unknown",
+        description="NetBox platform name for virtual machines when guest OS is unknown",
+    )
+    tags: list[str] = Field(default_factory=list, description="Tags applied to each object")
 
 
 class PolicyConfig(BaseModel):
@@ -28,7 +37,7 @@ class PolicyConfig(BaseModel):
     timeout: float = Field(default=60.0, ge=1.0, description="HTTP timeout in seconds")
     active_only: bool = Field(
         default=True,
-        description="When true, only ingest hosts with connection_state CONNECTED",
+        description="When true, only ingest CONNECTED hosts and POWERED_ON VMs",
     )
 
     @field_validator("package")
@@ -75,6 +84,17 @@ class Scope(BaseModel):
         return username
 
 
+class ClusterInfo(BaseModel):
+    """Normalized vCenter cluster inventory record."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    cluster_id: str
+    name: str
+    ha_enabled: bool | None = None
+    drs_enabled: bool | None = None
+
+
 class ESXiHost(BaseModel):
     """Normalized vCenter ESXi host inventory record."""
 
@@ -89,3 +109,17 @@ class ESXiHost(BaseModel):
     status: str | None = None
     power_state: str | None = None
     cluster_name: str | None = None
+
+
+class GuestVM(BaseModel):
+    """Normalized vCenter virtual machine inventory record."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    vm_id: str
+    name: str
+    power_state: str | None = None
+    cpu_count: int | None = None
+    memory_mib: int | None = None
+    cluster_name: str | None = None
+    host_name: str | None = None

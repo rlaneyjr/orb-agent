@@ -9,7 +9,7 @@ from worker.backend import load_class
 from worker.models import Config, Policy
 
 from nutanix_pc.backend import APP_NAME, APP_VERSION, NutanixPCBackend
-from nutanix_pc.models import PCHost
+from nutanix_pc.models import ClusterInfo, GuestVM, PCHost
 
 
 def _policy(**overrides) -> Policy:
@@ -47,9 +47,12 @@ def test_load_class_discovers_backend():
     assert load_class("nutanix_pc") is NutanixPCBackend
 
 
-def test_run_maps_devices_from_client():
-    """run() uses the injected client and maps hosts to entities."""
+def test_run_maps_inventory_from_client():
+    """run() uses the injected client and maps clusters/hosts/VMs to entities."""
     mock_client = MagicMock()
+    mock_client.list_clusters.return_value = [
+        ClusterInfo(cluster_id="aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", name="prod-cluster-a", status="COMPLETE")
+    ]
     mock_client.list_devices.return_value = [
         PCHost(
             device_id="11111111-2222-3333-4444-555555555555",
@@ -59,18 +62,37 @@ def test_run_maps_devices_from_client():
             mgmt_ip="10.20.1.11",
             serial="19SM6H230123",
             status="COMPLETE",
+            cluster_name="prod-cluster-a",
+        )
+    ]
+    mock_client.list_vms.return_value = [
+        GuestVM(
+            vm_id="vm-aaaa-1111-2222-3333-444444444444",
+            name="web-01",
+            power_state="ON",
+            cpu_count=4,
+            memory_mib=8192,
+            disk_gb=150,
+            cluster_name="prod-cluster-a",
+            host_name="NTNX-HOST-01",
+            primary_ip="10.20.2.10",
         )
     ]
 
     backend = NutanixPCBackend(client_factory=lambda scope, config: mock_client)
     entities = list(backend.run("nutanix_pc_inventory", _policy()))
 
+    mock_client.list_clusters.assert_called_once_with()
     mock_client.list_devices.assert_called_once_with(active_only=True)
+    mock_client.list_vms.assert_called_once_with(active_only=True)
     mock_client.close.assert_called_once()
-    assert len(entities) == 1
-    assert entities[0].device.name == "NTNX-HOST-01"
-    assert entities[0].device.serial == "19SM6H230123"
-    assert entities[0].device.site.name == "dc1"
+    assert len(entities) == 3
+    assert entities[0].WhichOneof("entity") == "cluster"
+    assert entities[0].cluster.name == "prod-cluster-a"
+    assert entities[1].device.name == "NTNX-HOST-01"
+    assert entities[1].device.cluster.name == "prod-cluster-a"
+    assert entities[2].virtual_machine.name == "web-01"
+    assert entities[2].virtual_machine.device.name == "NTNX-HOST-01"
 
 
 def test_run_rejects_bad_package():
