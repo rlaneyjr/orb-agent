@@ -30,3 +30,5 @@ CLAUDE.md
 # the agent image and CI build the agent as a single module. See AGENTS.md.
 go.work
 go.work.sum
+
+local_*.md
