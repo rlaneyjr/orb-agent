@@ -1,0 +1,4 @@
+# Reference list — same paths as orb-discovery/workers/workers.txt.
+# Official image installs these from source at build time (see Dockerfile).
+# For a custom/local image without rebuild, mount orb-discovery/workers and use:
+#   INSTALL_WORKERS_PATH=/opt/orb/workers/workers.txt

@@ -1,0 +1,9 @@
+# Local / bind-mount install list for INSTALL_WORKERS_PATH (no PyPI).
+# Mount this directory, e.g. -v /path/to/orb-agent/orb-discovery/workers:/opt/orb/workers
+# and set INSTALL_WORKERS_PATH=/opt/orb/workers/workers.txt
+./a10-control
+./arista-cv
+./cisco-intersight
+./nutanix-pc
+./paloalto-panorama
+./vmware-vcenter

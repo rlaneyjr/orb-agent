@@ -138,6 +138,7 @@ ARG BUILD_TRACK=dev
 
 COPY orb-discovery/device-discovery/ /src/device-discovery/
 COPY orb-discovery/worker/ /src/worker/
+COPY orb-discovery/workers/ /src/first-party-workers/
 COPY agent/docker/stamp_version.py /tmp/stamp_version.py
 RUN BUILD_COMMIT="${BUILD_COMMIT}" BUILD_TRACK="${BUILD_TRACK}" \
       python /tmp/stamp_version.py "${DEVICE_DISCOVERY_VERSION}" /src/device-discovery/device_discovery/version.py && \
@@ -148,7 +149,15 @@ RUN BUILD_COMMIT="${BUILD_COMMIT}" BUILD_TRACK="${BUILD_TRACK}" \
 # merges it file-by-file over the final stage's own pip — two versions with
 # different module layouts produce a broken chimera install (pip3 dies with
 # ImportError on every invocation).
-RUN pip3 install --no-cache-dir /src/device-discovery /src/worker && \
+RUN pip3 install --no-cache-dir \
+      /src/device-discovery \
+      /src/worker \
+      /src/first-party-workers/a10-control \
+      /src/first-party-workers/arista-cv \
+      /src/first-party-workers/cisco-intersight \
+      /src/first-party-workers/nutanix-pc \
+      /src/first-party-workers/paloalto-panorama \
+      /src/first-party-workers/vmware-vcenter && \
     pip3 uninstall -y pip
 
 ########################################################################

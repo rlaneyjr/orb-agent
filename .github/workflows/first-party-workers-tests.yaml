@@ -1,0 +1,44 @@
+name: First-party workers - test
+
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore:
+      - release
+    paths:
+      - "orb-discovery/workers/**"
+  pull_request:
+    paths:
+      - "orb-discovery/workers/**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ matrix.app-name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  test:
+    uses: ./.github/workflows/_backend-test-python.yaml
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app-name: workers/a10-control
+            python-module: a10_control
+          - app-name: workers/arista-cv
+            python-module: arista_cv
+          - app-name: workers/cisco-intersight
+            python-module: cisco_intersight
+          - app-name: workers/nutanix-pc
+            python-module: nutanix_pc
+          - app-name: workers/paloalto-panorama
+            python-module: paloalto_panorama
+          - app-name: workers/vmware-vcenter
+            python-module: vmware_vcenter
+    with:
+      app-name: ${{ matrix.app-name }}
+      python-module: ${{ matrix.python-module }}
+      orb-worker-path: ../../worker

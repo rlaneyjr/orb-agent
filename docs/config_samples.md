@@ -365,7 +365,13 @@ orb:
 ```
 
 ### Custom Workers
-To specify required custom workers packages, use the environment variable `INSTALL_WORKERS_PATH`. Ensure that the required files are placed in the mounted volume (`/opt/orb`).
+The official agent image includes the first-party inventory worker packages
+(`a10_control`, `arista_cv`, `cisco_intersight`, `nutanix_pc`, `paloalto_panorama`,
+`vmware_vcenter`) — set `config.package` to the Python module name in your policy.
+
+To add extra custom worker packages, use the environment variable
+`INSTALL_WORKERS_PATH`. Ensure that the required files are placed in the mounted
+volume (`/opt/orb`).
 
 Mounted folder example:
 ```sh

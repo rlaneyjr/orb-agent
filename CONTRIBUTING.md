@@ -19,10 +19,14 @@ pipeline keys off **PR titles** — so titles must follow the convention below.
 - **Per-backend releases** cut their own version from commits scoped to that
   backend (filtered by `orb-discovery/<backend>/**` or
   `orb-telemetry/<backend>/**`, whichever holds it), tagged
-  `<backend>/v<version>` (e.g. `snmp-discovery/v1.2.3`). The
-  `semantic-release-monorepo` plugin renders the GitHub Release *title* with a
-  dash (`snmp-discovery-v1.2.3`); this is cosmetic — the git tag and ref keep the
-  slash form. `worker` and `device-discovery` also publish to PyPI.
+  `<backend>/v<version>` (e.g. `snmp-discovery/v1.2.3`). First-party worker
+  packages under `orb-discovery/workers/<name>/` release the same way (e.g.
+  `arista-cv/v1.2.3`). The `semantic-release-monorepo` plugin renders the GitHub
+  Release *title* with a dash (`snmp-discovery-v1.2.3`); this is cosmetic — the
+  git tag and ref keep the slash form. `worker` and `device-discovery` publish
+  to PyPI; first-party packages under `orb-discovery/workers/` are installed from
+  source (agent image bake, `make install-first-party-workers`, or
+  `INSTALL_WORKERS_PATH`).
 - Pushing to `develop` rebuilds and publishes the `orb-agent:develop` image.
   This fires on changes under `agent/`, `cmd/`, `orb-discovery/` or
   `orb-telemetry/`, so a change to a backend the image bundles still refreshes
@@ -63,6 +67,12 @@ aggregated agent release):
 - `snmp-discovery`
 - `snmp-telemetry`
 - `worker`
+- `a10-control`
+- `arista-cv`
+- `cisco-intersight`
+- `nutanix-pc`
+- `paloalto-panorama`
+- `vmware-vcenter`
 
 Other scopes:
 
@@ -86,7 +96,9 @@ Other scopes:
 > **Agent version vs. non-agent scopes.** The mapping above is the per-component
 > rule. For the **agent** release specifically, both the backend scopes
 > (`device-discovery`, `network-discovery`, `snmp-discovery`, `gnmi-discovery`,
-> `gnmi-telemetry`, `snmp-telemetry`, `worker`) and the no-release scopes (`repo`, `ci`, `docs`,
+> `gnmi-telemetry`, `snmp-telemetry`, `worker`, `a10-control`, `arista-cv`,
+> `cisco-intersight`, `nutanix-pc`, `paloalto-panorama`, `vmware-vcenter`) and
+> the no-release scopes (`repo`, `ci`, `docs`,
 > `deps-dev`) are set to `release: false`, so even a releasing *type* on those
 > scopes (e.g. `feat(repo)`, `fix(ci)`) does **not** bump the agent version.
 > Backend commits still appear in the aggregated agent release notes. The one

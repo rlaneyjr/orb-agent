@@ -13,6 +13,13 @@ on:
         description: 'Python package directory (e.g. device_discovery) for the coverage path.'
         required: true
         type: string
+      orb-worker-path:
+        description: >-
+          Optional path to in-repo orb-worker (relative to orb-discovery/<app-name>).
+          Used for first-party worker packages instead of PyPI netboxlabs-orb-worker.
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -37,6 +44,9 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          if [ -n "${{ inputs.orb-worker-path }}" ]; then
+            pip install -e "${{ inputs.orb-worker-path }}"
+          fi
           pip install .
           pip install .[dev]
           pip install .[test]

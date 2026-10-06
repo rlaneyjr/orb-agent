@@ -53,9 +53,11 @@ orb-worker -t 'grpc://192.168.0.10:8080/diode' -c '${DIODE_CLIENT_ID}' -k '${DIO
 ## Docker Image
 
 `worker` is built from source into the `netboxlabs/orb-agent` image (from
-`orb-discovery/worker` in this repo); there is no standalone `worker` image. Run
-it via the agent image, which launches the backend on demand, or use orb-test-lab
-for local testing.
+`orb-discovery/worker` in this repo); there is no standalone `worker` image.
+The same image also installs the first-party worker packages under
+`orb-discovery/workers/` (A10 Control, Arista CV, Cisco Intersight, Nutanix PC,
+Palo Alto Panorama, VMware vCenter). Run via the agent image, which launches the
+backend on demand, or use orb-test-lab for local testing.
 
 ### Routes (v1)
 

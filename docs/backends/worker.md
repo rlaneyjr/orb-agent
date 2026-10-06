@@ -54,7 +54,14 @@ orb:
 ```
 
 ### Custom Workers
-To specify required custom workers packages, use the environment variable `INSTALL_WORKERS_PATH`. Ensure that the required files are placed in the mounted volume (`/opt/orb`).
+The official `netboxlabs/orb-agent` image ships with the first-party inventory
+worker packages pre-installed (`a10_control`, `arista_cv`, `cisco_intersight`,
+`nutanix_pc`, `paloalto_panorama`, `vmware_vcenter`). Use them in policies via
+`config.package` without extra setup.
+
+To add **additional** custom worker packages, use the environment variable
+`INSTALL_WORKERS_PATH`. Ensure that the required files are placed in the mounted
+volume (`/opt/orb`).
 
 Mounted folder example:
 ```sh

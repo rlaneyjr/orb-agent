@@ -38,6 +38,12 @@ jobs:
             snmp-discovery
             snmp-telemetry
             worker
+            a10-control
+            arista-cv
+            cisco-intersight
+            nutanix-pc
+            paloalto-panorama
+            vmware-vcenter
             ci
             docs
             deps

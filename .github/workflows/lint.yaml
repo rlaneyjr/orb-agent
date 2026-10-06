@@ -73,6 +73,12 @@ jobs:
         include:
           - dir: orb-discovery/device-discovery
           - dir: orb-discovery/worker
+          - dir: orb-discovery/workers/a10-control
+          - dir: orb-discovery/workers/arista-cv
+          - dir: orb-discovery/workers/cisco-intersight
+          - dir: orb-discovery/workers/nutanix-pc
+          - dir: orb-discovery/workers/paloalto-panorama
+          - dir: orb-discovery/workers/vmware-vcenter
     defaults:
       run:
         working-directory: ${{ matrix.dir }}
