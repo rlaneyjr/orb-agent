@@ -75,19 +75,21 @@ nbl-custom-worker-1.0.2.tar.gz # try install from a tar.gz
 ./nutanix-pc # Nutanix Prism Central host inventory worker
 ./cisco-intersight # Cisco Intersight compute inventory worker
 ./paloalto-panorama # Palo Alto Panorama managed-device inventory worker
+./vmware-vcenter # VMware vCenter ESXi host inventory worker
 ```
 
 ### Telemetry for worker packages
 
 First-party inventory workers do **not** collect device performance metrics from
-controller APIs (CVaaS/CVP, A10 Control, Prism Central, Intersight, Panorama).
+controller APIs (CVaaS/CVP, A10 Control, Prism Central, Intersight, Panorama,
+vCenter).
 
 - **Worker ops metrics** (policy runs, success/failure, latency, API stats) are
   emitted by the shared `orb-worker` runtime when `common.otlp.grpc` is set on
   the agent — no per-package OTEL code is required.
 - **Device metrics** use the agent `snmp_telemetry` / `gnmi_telemetry` backends
   with bundled vendor profiles (for example Arista switches, A10 Thunder,
-  Nutanix, Palo Alto PAN-OS).
+  Nutanix, Palo Alto PAN-OS, VMware).
 
 ### Arista CloudVision (CVaaS / CVP)
 
@@ -276,3 +278,41 @@ orb:
 
 See the [package README](../../orb-discovery/workers/paloalto-panorama/README.md)
 for the full policy schema and XML API-key setup.
+
+### VMware vCenter
+
+The first-party [`vmware-vcenter`](../../orb-discovery/workers/vmware-vcenter/README.md)
+worker package discovers ESXi hosts from vCenter (REST `GET /api/vcenter/host`)
+and ingests them via Diode. Install it with `INSTALL_WORKERS_PATH` as above (add
+`./vmware-vcenter` to `workers.txt`), then apply a policy:
+
+```yaml
+orb:
+  backends:
+    common:
+      diode:
+        target: grpc://192.168.0.100:8080/diode
+        client_id: ${DIODE_CLIENT_ID}
+        client_secret: ${DIODE_CLIENT_SECRET}
+        agent_name: agent01
+    worker:
+  policies:
+    worker:
+      vmware_vcenter_inventory:
+        config:
+          package: vmware_vcenter
+          schedule: "0 */6 * * *"
+          defaults:
+            site: dc1
+            role: hypervisor
+            manufacturer: VMware
+            platform: esxi
+            tags: ["vmware-vcenter"]
+        scope:
+          host: https://vcenter.example.com
+          username: ${VCENTER_USERNAME}
+          password: ${VCENTER_PASSWORD}
+```
+
+See the [package README](../../orb-discovery/workers/vmware-vcenter/README.md) for
+the full policy schema and vCenter session auth setup.

@@ -4,6 +4,12 @@ Orb Agent worker package that discovers **physical hosts** from **Nutanix Prism
 Central** via the v3 Hosts list API, then ingests them as Diode `Device`
 entities. Guest VMs are deferred beyond this MVP.
 
+## Future work
+
+Guest VMs and Nutanix clusters are deferred beyond this MVP. A follow-up should
+emit Diode `Cluster` / `ClusterType` and `VirtualMachine` entities (and link
+VM→host/cluster) for both this worker and the VMware vCenter worker.
+
 ## Install into Orb Agent
 
 Mount the package and point `INSTALL_WORKERS_PATH` at a `workers.txt` file:

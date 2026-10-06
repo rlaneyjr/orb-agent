@@ -1,0 +1,20 @@
+[
+  {
+    "host": "host-11",
+    "name": "esxi-01.lab.example.com",
+    "connection_state": "CONNECTED",
+    "power_state": "POWERED_ON"
+  },
+  {
+    "host": "host-22",
+    "name": "esxi-02.lab.example.com",
+    "connection_state": "CONNECTED",
+    "power_state": "POWERED_ON"
+  },
+  {
+    "host": "host-33",
+    "name": "esxi-legacy.lab.example.com",
+    "connection_state": "DISCONNECTED",
+    "power_state": "POWERED_OFF"
+  }
+]

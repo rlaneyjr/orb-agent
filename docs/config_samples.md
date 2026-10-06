@@ -386,6 +386,7 @@ nbl-custom-worker-1.0.2.tar.gz # try install from a tar.gz
 ./nutanix-pc
 ./cisco-intersight
 ./paloalto-panorama
+./vmware-vcenter
 ```
 
 Run command:
