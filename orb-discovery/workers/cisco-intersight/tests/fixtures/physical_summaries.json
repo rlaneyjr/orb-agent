@@ -1,0 +1,34 @@
+{
+  "Results": [
+    {
+      "Moid": "62f1aaaaaaaaaaaaaaaaaaaa",
+      "Name": "ucs-c220-01",
+      "Serial": "FCH1234567A",
+      "Model": "UCSC-C220-M5SX",
+      "MgmtIpAddress": "10.30.1.11",
+      "Firmware": "4.2(1a)",
+      "OperPowerState": "on",
+      "Vendor": "Cisco Systems Inc"
+    },
+    {
+      "Moid": "62f1bbbbbbbbbbbbbbbbbbbb",
+      "Name": "ucs-c220-02",
+      "Serial": "FCH1234567B",
+      "Model": "UCSC-C220-M5SX",
+      "MgmtIpAddress": "10.30.1.12",
+      "Firmware": "4.2(1a)",
+      "OperPowerState": "on",
+      "Vendor": "Cisco Systems Inc"
+    },
+    {
+      "Moid": "62f1cccccccccccccccccccc",
+      "Name": "ucs-legacy",
+      "Serial": "FCH00000001",
+      "Model": "UCSC-C240-M4SX",
+      "MgmtIpAddress": "10.30.9.9",
+      "Firmware": "3.1(3a)",
+      "OperPowerState": "off",
+      "Vendor": "Cisco Systems Inc"
+    }
+  ]
+}

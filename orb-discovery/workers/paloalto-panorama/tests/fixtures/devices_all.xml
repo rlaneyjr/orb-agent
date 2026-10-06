@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<response status="success">
+  <result>
+    <devices>
+      <entry name="007051000111111">
+        <serial>007051000111111</serial>
+        <connected>yes</connected>
+        <hostname>fw-edge-01</hostname>
+        <ip-address>10.40.1.11</ip-address>
+        <model>PA-3220</model>
+        <sw-version>10.2.3</sw-version>
+        <device-group>edge-dg</device-group>
+      </entry>
+      <entry name="007051000222222">
+        <serial>007051000222222</serial>
+        <connected>yes</connected>
+        <hostname>fw-edge-02</hostname>
+        <ip-address>10.40.1.12</ip-address>
+        <model>PA-3220</model>
+        <sw-version>10.2.3</sw-version>
+        <device-group>edge-dg</device-group>
+      </entry>
+      <entry name="007051000333333">
+        <serial>007051000333333</serial>
+        <connected>no</connected>
+        <hostname>fw-legacy</hostname>
+        <ip-address>10.40.9.9</ip-address>
+        <model>PA-850</model>
+        <sw-version>9.1.14</sw-version>
+        <device-group>legacy-dg</device-group>
+      </entry>
+    </devices>
+  </result>
+</response>

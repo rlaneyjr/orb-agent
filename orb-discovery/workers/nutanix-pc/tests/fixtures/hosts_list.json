@@ -1,0 +1,67 @@
+{
+  "entities": [
+    {
+      "metadata": {
+        "kind": "host",
+        "uuid": "11111111-2222-3333-4444-555555555555"
+      },
+      "status": {
+        "name": "NTNX-HOST-01",
+        "state": "COMPLETE",
+        "resources": {
+          "serial_number": "19SM6H230123",
+          "block_model_name": "NX-1065-G7",
+          "hypervisor_full_name": "Nutanix 20230302.100160",
+          "hypervisor_type": "AHV",
+          "hypervisor_ip": "10.20.1.11",
+          "cluster_name": "prod-cluster-a"
+        }
+      },
+      "spec": {
+        "name": "NTNX-HOST-01"
+      }
+    },
+    {
+      "metadata": {
+        "kind": "host",
+        "uuid": "22222222-3333-4444-5555-666666666666"
+      },
+      "status": {
+        "name": "NTNX-HOST-02",
+        "state": "COMPLETE",
+        "resources": {
+          "serial_number": "19SM6H230124",
+          "block_model_name": "NX-1065-G7",
+          "hypervisor_full_name": "Nutanix 20230302.100160",
+          "hypervisor_type": "AHV",
+          "hypervisor_ip": "10.20.1.12",
+          "cluster_name": "prod-cluster-a"
+        }
+      },
+      "spec": {
+        "name": "NTNX-HOST-02"
+      }
+    },
+    {
+      "metadata": {
+        "kind": "host",
+        "uuid": "33333333-4444-5555-6666-777777777777"
+      },
+      "status": {
+        "name": "NTNX-HOST-LEGACY",
+        "state": "ERROR",
+        "resources": {
+          "serial_number": "19SM6H110001",
+          "block_model_name": "NX-1065-G5",
+          "hypervisor_full_name": "Nutanix 20210916.100",
+          "hypervisor_type": "AHV",
+          "hypervisor_ip": "10.20.9.9",
+          "cluster_name": "legacy-cluster"
+        }
+      },
+      "spec": {
+        "name": "NTNX-HOST-LEGACY"
+      }
+    }
+  ]
+}
