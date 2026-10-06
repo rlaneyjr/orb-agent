@@ -71,6 +71,7 @@ my-custom-wkr==0.1.2 # try install from pypi
 nbl-custom-worker-1.0.2.tar.gz # try install from a tar.gz
 ./my-worker # try to install from a folder that contains project.toml
 ./arista-cv # Arista CloudVision (CVaaS/CVP) inventory worker
+./a10-control # A10 Control inventory worker
 ```
 
 ### Arista CloudVision (CVaaS / CVP)
@@ -109,3 +110,41 @@ orb:
 
 See the [package README](../../orb-discovery/workers/arista-cv/README.md) for the
 full policy schema and service-account token setup.
+
+### A10 Control
+
+The first-party [`a10-control`](../../orb-discovery/workers/a10-control/README.md)
+worker package discovers Thunder devices from A10 Control inventory and ingests
+them via Diode. Install it with `INSTALL_WORKERS_PATH` as above (add
+`./a10-control` to `workers.txt`), then apply a policy:
+
+```yaml
+orb:
+  backends:
+    common:
+      diode:
+        target: grpc://192.168.0.100:8080/diode
+        client_id: ${DIODE_CLIENT_ID}
+        client_secret: ${DIODE_CLIENT_SECRET}
+        agent_name: agent01
+    worker:
+  policies:
+    worker:
+      a10_control_inventory:
+        config:
+          package: a10_control
+          schedule: "0 */6 * * *"
+          defaults:
+            site: dc1
+            role: load-balancer
+            manufacturer: A10 Networks
+            platform: acos
+            tags: ["a10-control"]
+        scope:
+          host: https://control.example.com
+          api_key: ${A10_API_KEY}
+          organization: root
+```
+
+See the [package README](../../orb-discovery/workers/a10-control/README.md) for the
+full policy schema and organization API-key setup.
