@@ -99,6 +99,15 @@ Service Accounts**. The same token auth works for CVaaS and on-prem CVP; only
 | `streamingStatus` | `active` or `offline` |
 | policy `defaults.*` | site, role, manufacturer, platform, tags |
 
+## Telemetry
+
+- **Worker ops metrics** (policy runs, success/failure, latency) come from the
+  shared `orb-worker` runtime when the agent configures `common.otlp.grpc`.
+  This package does not implement its own OTEL exporter.
+- **Device metrics** for Arista EOS use `snmp_telemetry` / `gnmi_telemetry`
+  with bundled Arista profiles — not this discovery worker. There is no
+  CVaaS/CVP API metrics collector today.
+
 ## Development
 
 From this directory (with the sibling `orb-discovery/worker` package available):

@@ -109,6 +109,15 @@ The client calls
 unavailable, it falls back to `GET .../cluster/` and flattens embedded device
 objects (or single-node cluster rows).
 
+## Telemetry
+
+- **Worker ops metrics** (policy runs, success/failure, latency) come from the
+  shared `orb-worker` runtime when the agent configures `common.otlp.grpc`.
+  This package does not implement its own OTEL exporter.
+- **Device metrics** for A10 Thunder use `snmp_telemetry` with the bundled
+  `a10_networks/a10-thunder.yml` profile — not this discovery worker. There is
+  no A10 Control API metrics collector today.
+
 ## Development
 
 From this directory (with the sibling `orb-discovery/worker` package available):

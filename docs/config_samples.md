@@ -381,6 +381,11 @@ Example `workers.txt`:
 my-custom-wkr==0.1.2 # try install from pypi
 nbl-custom-worker-1.0.2.tar.gz # try install from a tar.gz
 ./my-worker # try to install from a folder that contains project.toml
+./arista-cv
+./a10-control
+./nutanix-pc
+./cisco-intersight
+./paloalto-panorama
 ```
 
 Run command:

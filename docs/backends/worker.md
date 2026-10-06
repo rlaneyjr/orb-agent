@@ -72,7 +72,22 @@ nbl-custom-worker-1.0.2.tar.gz # try install from a tar.gz
 ./my-worker # try to install from a folder that contains project.toml
 ./arista-cv # Arista CloudVision (CVaaS/CVP) inventory worker
 ./a10-control # A10 Control inventory worker
+./nutanix-pc # Nutanix Prism Central host inventory worker
+./cisco-intersight # Cisco Intersight compute inventory worker
+./paloalto-panorama # Palo Alto Panorama managed-device inventory worker
 ```
+
+### Telemetry for worker packages
+
+First-party inventory workers do **not** collect device performance metrics from
+controller APIs (CVaaS/CVP, A10 Control, Prism Central, Intersight, Panorama).
+
+- **Worker ops metrics** (policy runs, success/failure, latency, API stats) are
+  emitted by the shared `orb-worker` runtime when `common.otlp.grpc` is set on
+  the agent — no per-package OTEL code is required.
+- **Device metrics** use the agent `snmp_telemetry` / `gnmi_telemetry` backends
+  with bundled vendor profiles (for example Arista switches, A10 Thunder,
+  Nutanix, Palo Alto PAN-OS).
 
 ### Arista CloudVision (CVaaS / CVP)
 
@@ -148,3 +163,116 @@ orb:
 
 See the [package README](../../orb-discovery/workers/a10-control/README.md) for the
 full policy schema and organization API-key setup.
+
+### Nutanix Prism Central
+
+The first-party [`nutanix-pc`](../../orb-discovery/workers/nutanix-pc/README.md)
+worker package discovers physical hosts from Prism Central (v3 hosts list) and
+ingests them via Diode. Install it with `INSTALL_WORKERS_PATH` as above (add
+`./nutanix-pc` to `workers.txt`), then apply a policy:
+
+```yaml
+orb:
+  backends:
+    common:
+      diode:
+        target: grpc://192.168.0.100:8080/diode
+        client_id: ${DIODE_CLIENT_ID}
+        client_secret: ${DIODE_CLIENT_SECRET}
+        agent_name: agent01
+    worker:
+  policies:
+    worker:
+      nutanix_pc_inventory:
+        config:
+          package: nutanix_pc
+          schedule: "0 */6 * * *"
+          defaults:
+            site: dc1
+            role: hypervisor
+            manufacturer: Nutanix
+            platform: ahv
+            tags: ["nutanix-pc"]
+        scope:
+          host: https://pc.example.com:9440
+          username: ${PC_USERNAME}
+          password: ${PC_PASSWORD}
+```
+
+See the [package README](../../orb-discovery/workers/nutanix-pc/README.md) for the
+full policy schema and Prism Central auth setup.
+
+### Cisco Intersight
+
+The first-party [`cisco-intersight`](../../orb-discovery/workers/cisco-intersight/README.md)
+worker package discovers compute endpoints from Intersight and ingests them via
+Diode. Install it with `INSTALL_WORKERS_PATH` as above (add `./cisco-intersight`
+to `workers.txt`), then apply a policy:
+
+```yaml
+orb:
+  backends:
+    common:
+      diode:
+        target: grpc://192.168.0.100:8080/diode
+        client_id: ${DIODE_CLIENT_ID}
+        client_secret: ${DIODE_CLIENT_SECRET}
+        agent_name: agent01
+    worker:
+  policies:
+    worker:
+      cisco_intersight_inventory:
+        config:
+          package: cisco_intersight
+          schedule: "0 */6 * * *"
+          defaults:
+            site: dc1
+            role: server
+            manufacturer: Cisco
+            platform: ucs
+            tags: ["intersight"]
+        scope:
+          host: https://intersight.com
+          api_key_id: ${INTERSIGHT_KEY_ID}
+          secret_key: ${INTERSIGHT_SECRET_KEY}
+```
+
+See the [package README](../../orb-discovery/workers/cisco-intersight/README.md)
+for the full policy schema and API-key signing setup.
+
+### Palo Alto Panorama
+
+The first-party [`paloalto-panorama`](../../orb-discovery/workers/paloalto-panorama/README.md)
+worker package discovers managed firewalls from Panorama (`show devices all`) and
+ingests them via Diode. Install it with `INSTALL_WORKERS_PATH` as above (add
+`./paloalto-panorama` to `workers.txt`), then apply a policy:
+
+```yaml
+orb:
+  backends:
+    common:
+      diode:
+        target: grpc://192.168.0.100:8080/diode
+        client_id: ${DIODE_CLIENT_ID}
+        client_secret: ${DIODE_CLIENT_SECRET}
+        agent_name: agent01
+    worker:
+  policies:
+    worker:
+      paloalto_panorama_inventory:
+        config:
+          package: paloalto_panorama
+          schedule: "0 */6 * * *"
+          defaults:
+            site: dc1
+            role: firewall
+            manufacturer: Palo Alto Networks
+            platform: panos
+            tags: ["panorama"]
+        scope:
+          host: https://panorama.example.com
+          api_key: ${PANORAMA_API_KEY}
+```
+
+See the [package README](../../orb-discovery/workers/paloalto-panorama/README.md)
+for the full policy schema and XML API-key setup.
