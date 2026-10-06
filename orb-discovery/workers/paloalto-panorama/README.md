@@ -6,29 +6,20 @@ as Diode `Device` entities.
 
 ## Install into Orb Agent
 
-Mount the package and point `INSTALL_WORKERS_PATH` at a `workers.txt` file:
-
-```text
-/local/orb/
-├── agent.yaml
-├── workers.txt
-└── paloalto-panorama/          # this directory (contains pyproject.toml)
-```
-
-`workers.txt`:
-
-```text
-./paloalto-panorama
-```
+This package ships in the agent image (baked from this repository). Enable the
+`worker` backend and apply a policy with `package: paloalto_panorama` — no
+`INSTALL_WORKERS_PATH` mount is required.
 
 ```bash
 docker run -v /local/orb:/opt/orb \
-  -e INSTALL_WORKERS_PATH=/opt/orb/workers.txt \
   -e DIODE_CLIENT_ID=... \
   -e DIODE_CLIENT_SECRET=... \
   -e PANORAMA_API_KEY=... \
   netboxlabs/orb-agent:latest run -c /opt/orb/agent.yaml
 ```
+
+Use `INSTALL_WORKERS_PATH` only for custom/third-party worker packages, or to
+override the baked package with a local checkout during development.
 
 ## Policy
 

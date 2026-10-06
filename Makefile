@@ -45,14 +45,9 @@ export GOWORK = off
 # orb-discovery/ (snmp-telemetry lives under orb-telemetry/).
 GO_BACKENDS = orb-discovery/network-discovery orb-discovery/snmp-discovery orb-discovery/gnmi-discovery orb-telemetry/snmp-telemetry orb-telemetry/gnmi-telemetry
 PY_BACKENDS = device-discovery worker
-# First-party worker packages (policy `config.package` module names live under each dir).
-PY_FIRST_PARTY_WORKERS = \
-	workers/a10-control \
-	workers/arista-cv \
-	workers/cisco-intersight \
-	workers/nutanix-pc \
-	workers/paloalto-panorama \
-	workers/vmware-vcenter
+# First-party inventory worker packages (baked into the agent image; not the
+# shared orb-worker runtime in PY_BACKENDS).
+WORKERS = a10-control arista-cv cisco-intersight nutanix-pc paloalto-panorama vmware-vcenter
 
 .PHONY: agent agent_bin
 
@@ -76,29 +71,15 @@ install-dev-tools:
 		  pip install -q -e '.[dev,test]' && \
 		  pip install -q ruff==0.15.10 ) || exit 1; \
 	done
-	@for b in $(PY_FIRST_PARTY_WORKERS); do \
-		echo ">> orb-discovery/$$b: venv + dev/test deps"; \
-		( cd orb-discovery/$$b && \
+	@for w in $(WORKERS); do \
+		echo ">> orb-discovery/workers/$$w: venv + local orb-worker + dev/test deps"; \
+		( cd orb-discovery/workers/$$w && \
 		  { test -d .venv || python3 -m venv .venv; } && \
 		  . .venv/bin/activate && \
 		  pip install -q -e ../../worker && \
 		  pip install -q -e '.[dev,test]' && \
 		  pip install -q ruff==0.15.10 ) || exit 1; \
 	done
-
-# Editable orb-worker + all first-party worker packages in one venv (no PyPI).
-.PHONY: install-first-party-workers
-install-first-party-workers:
-	@echo ">> orb-discovery/workers: shared venv + orb-worker + first-party packages"
-	@( cd orb-discovery/workers && \
-	  { test -d .venv || python3 -m venv .venv; } && \
-	  . .venv/bin/activate && \
-	  pip install -q -U pip && \
-	  pip install -q -e ../worker && \
-	  for b in a10-control arista-cv cisco-intersight nutanix-pc paloalto-panorama vmware-vcenter; do \
-	    pip install -q -e "$$b"; \
-	  done && \
-	  echo "Activate: source orb-discovery/workers/.venv/bin/activate" )
 
 .PHONY: deps
 deps:
@@ -156,9 +137,9 @@ lint-all: lint
 		test -d orb-discovery/$$b/.venv || { echo "missing orb-discovery/$$b/.venv — run 'make install-dev-tools'"; exit 1; }; \
 		( cd orb-discovery/$$b && . .venv/bin/activate && ruff check . ) || exit 1; \
 	done
-	@for b in $(PY_FIRST_PARTY_WORKERS); do \
-		test -d orb-discovery/$$b/.venv || { echo "missing orb-discovery/$$b/.venv — run 'make install-dev-tools'"; exit 1; }; \
-		( cd orb-discovery/$$b && . .venv/bin/activate && ruff check . ) || exit 1; \
+	@for w in $(WORKERS); do \
+		test -d orb-discovery/workers/$$w/.venv || { echo "missing orb-discovery/workers/$$w/.venv — run 'make install-dev-tools'"; exit 1; }; \
+		( cd orb-discovery/workers/$$w && . .venv/bin/activate && ruff check . ) || exit 1; \
 	done
 
 .PHONY: fix-lint-all
@@ -168,9 +149,9 @@ fix-lint-all: fix-lint
 		test -d orb-discovery/$$b/.venv || { echo "missing orb-discovery/$$b/.venv — run 'make install-dev-tools'"; exit 1; }; \
 		( cd orb-discovery/$$b && . .venv/bin/activate && ruff check --fix . ) || exit 1; \
 	done
-	@for b in $(PY_FIRST_PARTY_WORKERS); do \
-		test -d orb-discovery/$$b/.venv || { echo "missing orb-discovery/$$b/.venv — run 'make install-dev-tools'"; exit 1; }; \
-		( cd orb-discovery/$$b && . .venv/bin/activate && ruff check --fix . ) || exit 1; \
+	@for w in $(WORKERS); do \
+		test -d orb-discovery/workers/$$w/.venv || { echo "missing orb-discovery/workers/$$w/.venv — run 'make install-dev-tools'"; exit 1; }; \
+		( cd orb-discovery/workers/$$w && . .venv/bin/activate && ruff check --fix . ) || exit 1; \
 	done
 
 .PHONY: test-all
@@ -180,9 +161,9 @@ test-all: test
 		test -d orb-discovery/$$b/.venv || { echo "missing orb-discovery/$$b/.venv — run 'make install-dev-tools'"; exit 1; }; \
 		( cd orb-discovery/$$b && . .venv/bin/activate && pytest ) || exit 1; \
 	done
-	@for b in $(PY_FIRST_PARTY_WORKERS); do \
-		test -d orb-discovery/$$b/.venv || { echo "missing orb-discovery/$$b/.venv — run 'make install-dev-tools'"; exit 1; }; \
-		( cd orb-discovery/$$b && . .venv/bin/activate && pytest ) || exit 1; \
+	@for w in $(WORKERS); do \
+		test -d orb-discovery/workers/$$w/.venv || { echo "missing orb-discovery/workers/$$w/.venv — run 'make install-dev-tools'"; exit 1; }; \
+		( cd orb-discovery/workers/$$w && . .venv/bin/activate && pytest ) || exit 1; \
 	done
 
 agent:

@@ -365,13 +365,12 @@ orb:
 ```
 
 ### Custom Workers
-The official agent image includes the first-party inventory worker packages
-(`a10_control`, `arista_cv`, `cisco_intersight`, `nutanix_pc`, `paloalto_panorama`,
-`vmware_vcenter`) — set `config.package` to the Python module name in your policy.
-
-To add extra custom worker packages, use the environment variable
-`INSTALL_WORKERS_PATH`. Ensure that the required files are placed in the mounted
-volume (`/opt/orb`).
+First-party inventory workers (`arista-cv`, `a10-control`, `nutanix-pc`,
+`cisco-intersight`, `paloalto-panorama`, `vmware-vcenter`) ship in the agent
+image — set `config.package` to the Python module name (`arista_cv`,
+`a10_control`, etc.). Use `INSTALL_WORKERS_PATH` only for **custom /
+third-party** packages. Ensure that the required files are placed in the
+mounted volume (`/opt/orb`).
 
 Mounted folder example:
 ```sh
@@ -387,12 +386,6 @@ Example `workers.txt`:
 my-custom-wkr==0.1.2 # try install from pypi
 nbl-custom-worker-1.0.2.tar.gz # try install from a tar.gz
 ./my-worker # try to install from a folder that contains project.toml
-./arista-cv
-./a10-control
-./nutanix-pc
-./cisco-intersight
-./paloalto-panorama
-./vmware-vcenter
 ```
 
 Run command:

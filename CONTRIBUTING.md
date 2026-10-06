@@ -24,9 +24,9 @@ pipeline keys off **PR titles** — so titles must follow the convention below.
   `arista-cv/v1.2.3`). The `semantic-release-monorepo` plugin renders the GitHub
   Release *title* with a dash (`snmp-discovery-v1.2.3`); this is cosmetic — the
   git tag and ref keep the slash form. `worker` and `device-discovery` publish
-  to PyPI; first-party packages under `orb-discovery/workers/` are installed from
-  source (agent image bake, `make install-first-party-workers`, or
-  `INSTALL_WORKERS_PATH`).
+  to PyPI; first-party packages under `orb-discovery/workers/` are baked into
+  the agent image from source (use `INSTALL_WORKERS_PATH` only for custom /
+  third-party packages or to override a baked package locally).
 - Pushing to `develop` rebuilds and publishes the `orb-agent:develop` image.
   This fires on changes under `agent/`, `cmd/`, `orb-discovery/` or
   `orb-telemetry/`, so a change to a backend the image bundles still refreshes

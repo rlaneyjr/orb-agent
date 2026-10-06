@@ -54,14 +54,17 @@ orb:
 ```
 
 ### Custom Workers
-The official `netboxlabs/orb-agent` image ships with the first-party inventory
-worker packages pre-installed (`a10_control`, `arista_cv`, `cisco_intersight`,
-`nutanix_pc`, `paloalto_panorama`, `vmware_vcenter`). Use them in policies via
-`config.package` without extra setup.
+First-party inventory workers (`arista-cv`, `a10-control`, `nutanix-pc`,
+`cisco-intersight`, `paloalto-panorama`, `vmware-vcenter`) are **baked into the
+agent image** from this repository. Enable the `worker` backend and apply a
+policy that sets `config.package` to the Python module name (`arista_cv`,
+`a10_control`, `nutanix_pc`, `cisco_intersight`, `paloalto_panorama`,
+`vmware_vcenter`) — no `INSTALL_WORKERS_PATH` mount is required for those
+packages.
 
-To add **additional** custom worker packages, use the environment variable
-`INSTALL_WORKERS_PATH`. Ensure that the required files are placed in the mounted
-volume (`/opt/orb`).
+To install **custom / third-party** worker packages at container start, use the
+environment variable `INSTALL_WORKERS_PATH`. Ensure that the required files are
+placed in the mounted volume (`/opt/orb`).
 
 Mounted folder example:
 ```sh
@@ -77,12 +80,6 @@ Example `workers.txt`:
 my-custom-wkr==0.1.2 # try install from pypi
 nbl-custom-worker-1.0.2.tar.gz # try install from a tar.gz
 ./my-worker # try to install from a folder that contains project.toml
-./arista-cv # Arista CloudVision (CVaaS/CVP) inventory worker
-./a10-control # A10 Control inventory worker
-./nutanix-pc # Nutanix Prism Central cluster/host/VM inventory worker
-./cisco-intersight # Cisco Intersight compute inventory worker
-./paloalto-panorama # Palo Alto Panorama managed-device inventory worker
-./vmware-vcenter # VMware vCenter cluster/ESXi/VM inventory worker
 ```
 
 ### Telemetry for worker packages
@@ -102,8 +99,7 @@ vCenter).
 
 The first-party [`arista-cv`](../../orb-discovery/workers/arista-cv/README.md)
 worker package discovers devices from CloudVision inventory and ingests them via
-Diode. Install it with `INSTALL_WORKERS_PATH` as above (add `./arista-cv` to
-`workers.txt`), then apply a policy:
+Diode. It ships in the agent image; apply a policy:
 
 ```yaml
 orb:
@@ -139,8 +135,7 @@ full policy schema and service-account token setup.
 
 The first-party [`a10-control`](../../orb-discovery/workers/a10-control/README.md)
 worker package discovers Thunder devices from A10 Control inventory and ingests
-them via Diode. Install it with `INSTALL_WORKERS_PATH` as above (add
-`./a10-control` to `workers.txt`), then apply a policy:
+them via Diode. It ships in the agent image; apply a policy:
 
 ```yaml
 orb:
@@ -177,8 +172,8 @@ full policy schema and organization API-key setup.
 
 The first-party [`nutanix-pc`](../../orb-discovery/workers/nutanix-pc/README.md)
 worker package discovers clusters, physical hosts, and VMs from Prism Central
-(v3 list APIs) and ingests them via Diode. Install it with `INSTALL_WORKERS_PATH`
-as above (add `./nutanix-pc` to `workers.txt`), then apply a policy:
+(v3 list APIs) and ingests them via Diode. It ships in the agent image; apply a
+policy:
 
 ```yaml
 orb:
@@ -215,8 +210,7 @@ full policy schema and Prism Central auth setup.
 
 The first-party [`cisco-intersight`](../../orb-discovery/workers/cisco-intersight/README.md)
 worker package discovers compute endpoints from Intersight and ingests them via
-Diode. Install it with `INSTALL_WORKERS_PATH` as above (add `./cisco-intersight`
-to `workers.txt`), then apply a policy:
+Diode. It ships in the agent image; apply a policy:
 
 ```yaml
 orb:
@@ -253,8 +247,7 @@ for the full policy schema and API-key signing setup.
 
 The first-party [`paloalto-panorama`](../../orb-discovery/workers/paloalto-panorama/README.md)
 worker package discovers managed firewalls from Panorama (`show devices all`) and
-ingests them via Diode. Install it with `INSTALL_WORKERS_PATH` as above (add
-`./paloalto-panorama` to `workers.txt`), then apply a policy:
+ingests them via Diode. It ships in the agent image; apply a policy:
 
 ```yaml
 orb:
@@ -290,9 +283,8 @@ for the full policy schema and XML API-key setup.
 
 The first-party [`vmware-vcenter`](../../orb-discovery/workers/vmware-vcenter/README.md)
 worker package discovers clusters, ESXi hosts, and VMs from vCenter (REST
-`/api/vcenter/cluster`, `/host`, `/vm`) and ingests them via Diode. Install it
-with `INSTALL_WORKERS_PATH` as above (add `./vmware-vcenter` to `workers.txt`),
-then apply a policy:
+`/api/vcenter/cluster`, `/host`, `/vm`) and ingests them via Diode. It ships in
+the agent image; apply a policy:
 
 ```yaml
 orb:

@@ -6,30 +6,21 @@ ingests them as Diode `Cluster`, `Device`, and `VirtualMachine` entities.
 
 ## Install into Orb Agent
 
-Mount the package and point `INSTALL_WORKERS_PATH` at a `workers.txt` file:
-
-```text
-/local/orb/
-├── agent.yaml
-├── workers.txt
-└── nutanix-pc/          # this directory (contains pyproject.toml)
-```
-
-`workers.txt`:
-
-```text
-./nutanix-pc
-```
+This package ships in the agent image (baked from this repository). Enable the
+`worker` backend and apply a policy with `package: nutanix_pc` — no
+`INSTALL_WORKERS_PATH` mount is required.
 
 ```bash
 docker run -v /local/orb:/opt/orb \
-  -e INSTALL_WORKERS_PATH=/opt/orb/workers.txt \
   -e DIODE_CLIENT_ID=... \
   -e DIODE_CLIENT_SECRET=... \
   -e PC_USERNAME=... \
   -e PC_PASSWORD=... \
   netboxlabs/orb-agent:latest run -c /opt/orb/agent.yaml
 ```
+
+Use `INSTALL_WORKERS_PATH` only for custom/third-party worker packages, or to
+override the baked package with a local checkout during development.
 
 ## Policy
 

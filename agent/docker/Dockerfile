@@ -126,9 +126,13 @@ FROM netboxlabs/pktvisor:${PKTVISOR_TAG} AS pktvisor
 ########################################################################
 FROM python:3.14-alpine AS python-builder
 
-# Install the Python backends from in-repo source (was: published PyPI packages
-# netboxlabs-device-discovery / netboxlabs-orb-worker). Console scripts
-# device-discovery and orb-worker land in /usr/local/bin.
+# Install the Python backends and first-party inventory workers from in-repo
+# source (was: published PyPI packages netboxlabs-device-discovery /
+# netboxlabs-orb-worker). Console scripts device-discovery and orb-worker land
+# in /usr/local/bin. Inventory workers under orb-discovery/workers/ are baked
+# with --no-deps so pip does not pull netboxlabs-orb-worker from PyPI over the
+# just-installed from-source runtime (workers pin ~=1.0; local stamps are often
+# 0.0.0). Third-party deps are installed separately afterward.
 # Stamp backend versions into version.py (the release pipeline does this via sed;
 # mirror it so the from-source build reports real versions, not 0.0.0).
 ARG DEVICE_DISCOVERY_VERSION=0.0.0
@@ -138,7 +142,7 @@ ARG BUILD_TRACK=dev
 
 COPY orb-discovery/device-discovery/ /src/device-discovery/
 COPY orb-discovery/worker/ /src/worker/
-COPY orb-discovery/workers/ /src/first-party-workers/
+COPY orb-discovery/workers/ /src/workers/
 COPY agent/docker/stamp_version.py /tmp/stamp_version.py
 RUN BUILD_COMMIT="${BUILD_COMMIT}" BUILD_TRACK="${BUILD_TRACK}" \
       python /tmp/stamp_version.py "${DEVICE_DISCOVERY_VERSION}" /src/device-discovery/device_discovery/version.py && \
@@ -149,15 +153,15 @@ RUN BUILD_COMMIT="${BUILD_COMMIT}" BUILD_TRACK="${BUILD_TRACK}" \
 # merges it file-by-file over the final stage's own pip — two versions with
 # different module layouts produce a broken chimera install (pip3 dies with
 # ImportError on every invocation).
-RUN pip3 install --no-cache-dir \
-      /src/device-discovery \
-      /src/worker \
-      /src/first-party-workers/a10-control \
-      /src/first-party-workers/arista-cv \
-      /src/first-party-workers/cisco-intersight \
-      /src/first-party-workers/nutanix-pc \
-      /src/first-party-workers/paloalto-panorama \
-      /src/first-party-workers/vmware-vcenter && \
+RUN pip3 install --no-cache-dir /src/device-discovery /src/worker && \
+    pip3 install --no-cache-dir --no-deps \
+      /src/workers/a10-control \
+      /src/workers/arista-cv \
+      /src/workers/cisco-intersight \
+      /src/workers/nutanix-pc \
+      /src/workers/paloalto-panorama \
+      /src/workers/vmware-vcenter && \
+    pip3 install --no-cache-dir 'httpx~=0.27' 'pydantic~=2.9' 'cryptography~=44.0' && \
     pip3 uninstall -y pip
 
 ########################################################################
